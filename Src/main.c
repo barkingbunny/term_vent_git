@@ -60,7 +60,7 @@
 #include <stdio.h>
 #include "rtc_api.h"
 #include "Time.h"
-#include "menu.h"
+//#include "menu.h"
 #include "log.h"
 #include "sleep.h"
 /* USER CODE END Includes */
