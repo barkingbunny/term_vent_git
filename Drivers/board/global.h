@@ -8,10 +8,29 @@
 #ifndef MODULE_GLOBAL_H_
 #define MODULE_GLOBAL_H_
 
-// tato promena urcuje, ze kod se bude prekladat se vsim co je v DEBUG modu
-#define DEBUG
+// tato promena urcuje, ze kod se bude prekladat se vsim co je v DEBUG_TERMOSTAT modu
 
 #include "stm32l0xx_hal.h"
+
+#define DEBUG_TERMOSTAT 		// debug of the code is turned ON!
+#define SW_VERSION 003 //verze softwaru
+
+#define BUT_DELAY 1		// in milisecond - I want to read it quckly
+#define MAIN_LOOP 25		// in milisecond
+#define MEASURE_PERIODE 60000 // every 60 secondn
+#define LED_PERIODE 500 //
+#define TIME_PERIODE 400 // ms definition of periode for checking time change (RTC change )
+#define HEATING_PERIODE 1000 // every 5 minute check for change - turn on / off heater
+#define LOG_PERIODE 300 // in seconds - every 5 minute check for change - turn on / off heater
+
+#define HEATING_INSTANT 900 // in seconds for 15 minutes is turned on the instant heating
+
+#define HEATING_HYSTERESIS 50 // hysteresis is 0.5 deg C ( X/50)
+
+#define TEMPERATURE_MAX 3000 // 30.00C maximum temperature, when this limit is reached, the radiator will stop.
+#define TEMPERATURE_MIN -1000 //-10.00C maximum temperature, when this limit is reached, the radiator will stop.
+
+#define LOG_DATA_LENGTH 7 // number of logged samples
 
 typedef enum {FALSE = 0u, TRUE = 1u} Bool;
 // the priority is selected by place in the list.
@@ -56,27 +75,6 @@ typedef struct {
 
 
 }Flags_main;
-
-#define DEBUG 		// debug of the code is turned ON!
-#define SW_VERSION 002 //verze softwaru
-
-#define BUT_DELAY 1		// in milisecond - I want to read it quckly
-#define MAIN_LOOP 25		// in milisecond
-#define MEASURE_PERIODE 5000 // every 5 secondn
-#define LED_PERIODE 500 //
-#define TIME_PERIODE 400 // ms definition of periode for checking time change (RTC change )
-#define HEATING_PERIODE 1000 // every 5 minute check for change - turn on / off heater
-#define LOG_PERIODE 300 // in seconds - every 5 minute check for change - turn on / off heater
-
-#define HEATING_INSTANT 900 // in seconds for 15 minutes is turned on the instant heating
-
-#define HEATING_HYSTERESIS 50 // hysteresis is 0.5 deg C ( X/50)
-
-#define TEMPERATURE_MAX 3000 // 30.00C maximum temperature, when this limit is reached, the radiator will stop.
-#define TEMPERATURE_MIN -1000 //-10.00C maximum temperature, when this limit is reached, the radiator will stop.
-
-#define LOG_DATA_LENGTH 7 // number of logged samples
-
 
 extern Flags_main flags;
 

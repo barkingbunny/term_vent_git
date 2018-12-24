@@ -49,7 +49,9 @@
 
 /* USER CODE BEGIN Includes */
 /**
- * testovaci zacatek pro desku
+ * Program pro ventilacni system
+ *
+ *
  */
 #include "pinmap.h"
 #include "peripherals.h"
@@ -102,7 +104,6 @@ int main(void)
   char buffer_s [32];
 
 
-
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -145,6 +146,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+
+
+
+
+
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
