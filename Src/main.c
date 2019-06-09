@@ -225,17 +225,7 @@ HAL_ADC_Start(&hadc);
 			  break;
 		  }
 
-//	  case LOG:
-//	  {
-//		  if (flags.log_enable)
-//		  {
-//			  Log_Temperature(&hrtc, temperature, humid);
-//
-//		  }
-//		  fill_comparer_seconds(LOG_PERIODE, &logging_compare);
-//		  current_state = IDLE;
-//		  break;
-//	  }
+
 	  default:
 	  {
 		  break;
@@ -340,51 +330,6 @@ HAL_ADC_Start(&hadc);
 	  				  lcd_setCharPos(4,3);
 	  					 snprintf(buffer_s, 12, "%d",aADCxConvertedData[3]);
 	  					  lcd_printString(buffer_s);
-
-
-
-
-//		  lcd_setCharPos(1,3);
-//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[3]);
-//		  lcd_printString(buffer_s);
-//
-//		  lcd_setCharPos(1,11);
-//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[0]);
-//		  lcd_printString(buffer_s);
-//
-//		  lcd_setCharPos(2,3);
-//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[1]);
-//		  lcd_printString(buffer_s);
-//
-//		  lcd_setCharPos(2,11);
-//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[6]);
-//		  lcd_printString(buffer_s);
-//
-//		  lcd_setCharPos(3,3);
-//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[5]);
-//		  lcd_printString(buffer_s);
-
-//		  lcd_setCharPos(3,11);
-//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[4]);
-//		  lcd_printString(buffer_s);
-//
-//		  lcd_setCharPos(4,3);
-//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[2]);
-//		  lcd_printString(buffer_s);
-//
-//		  lcd_setCharPos(4,11);
-//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[7]);
-//		  lcd_printString(buffer_s);
-//
-//		  lcd_setCharPos(5,3);
-//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[8]);
-//		  lcd_printString(buffer_s);
-//
-//		  lcd_setCharPos(5,11);
-//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[9]);
-//		  lcd_printString(buffer_s);
-		  // end debug
-
 		  break;
 	  }
 
@@ -493,8 +438,8 @@ HAL_ADC_Start(&hadc);
 	  		case BUT_2:
 	  		{// Immediattely heating for 15 minutes
 
-	  			flags.heating_instant = TRUE;
-	  			fill_comparer_seconds(HEATING_INSTANT, &heating_instant_timeout);
+	  			flags.heating_instant = TRUE;  // predelat na foukej ///
+
 	  			break;
 	  		}
 	  		case BUT_ENC:
