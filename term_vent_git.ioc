@@ -1,7 +1,7 @@
 #MicroXplorer Configuration settings - do not modify
 ADC.ClockPrescaler=ADC_CLOCK_SYNC_PCLK_DIV2
 ADC.ContinuousConvMode=DISABLE
-ADC.DMAContinuousRequests=ENABLE
+ADC.DMAContinuousRequests=DISABLE
 ADC.DataAlign=ADC_DATAALIGN_RIGHT
 ADC.DiscontinuousConvMode=DISABLE
 ADC.EOCSelection=ADC_EOC_SINGLE_CONV
@@ -14,7 +14,7 @@ ADC.LowPowerAutoWait=DISABLE
 ADC.LowPowerFrequencyMode=DISABLE
 ADC.Overrun=ADC_OVR_DATA_PRESERVED
 ADC.OversamplingMode=DISABLE
-ADC.Resolution=ADC_RESOLUTION_12B
+ADC.Resolution=ADC_RESOLUTION_8B
 ADC.SamplingTime=ADC_SAMPLETIME_12CYCLES_5
 ADC.ScanConvMode=ADC_SCAN_DIRECTION_FORWARD
 Dma.ADC.0.Direction=DMA_PERIPH_TO_MEMORY
@@ -414,7 +414,7 @@ TIM2.OCPolarity_2=TIM_OCPOLARITY_LOW
 TIM2.OCPolarity_3=TIM_OCPOLARITY_LOW
 TIM2.Period=699
 TIM2.Pulse-PWM\ Generation1\ CH1=524
-TIM2.Pulse-PWM\ Generation2\ CH2=600
+TIM2.Pulse-PWM\ Generation2\ CH2=35
 TIM2.Pulse-PWM\ Generation3\ CH3=600
 TIM2.Pulse-PWM\ Generation4\ CH4=600
 TIM21.IPParameters=Prescaler,Period

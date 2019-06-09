@@ -79,7 +79,7 @@ int8_t en_count=0;
 
 /* Definitions of data related to this example */
   /* Definition of ADCx conversions data table size */
-  #define ADC_CONVERTED_DATA_BUFFER_SIZE   15   /* Size of array aADCxConvertedData[] */
+  #define ADC_CONVERTED_DATA_BUFFER_SIZE   5   /* Size of array aADCxConvertedData[] */
 /* Variable containing ADC conversions data */
 static uint16_t   aADCxConvertedData[ADC_CONVERTED_DATA_BUFFER_SIZE];
 
@@ -173,16 +173,9 @@ int main(void)
   current_state = MEASURING;
   show=desktop;
 
-  //START ADC CONVERSION:
 
-  if (HAL_ADC_Start_DMA(&hadc,
-                         (uint32_t *)aADCxConvertedData,
-                         ADC_CONVERTED_DATA_BUFFER_SIZE
-                        ) != HAL_OK)
-   {
-     Error_Handler();
-   }
-  // end of the ADC start rutine conversion
+
+HAL_ADC_Start(&hadc);
 
   /* USER CODE END 2 */
 
@@ -195,50 +188,22 @@ int main(void)
 	  case MEASURING:
 	  {
 
+		  HAL_ADC_PollForConversion(&hadc,100);
 
+		  /* Check if the continous conversion of regular channel is finished */
+		      if ((HAL_ADC_GetState(&hadc) & HAL_ADC_STATE_REG_EOC) == HAL_ADC_STATE_REG_EOC)
+		      {
+		        /*##-6- Get the converted value of regular channel  ########################*/
+		    	  aADCxConvertedData[2] = HAL_ADC_GetValue(&hadc);
+		      }
+		  //START ADC CONVERSION:
+/*
+		    if (HAL_ADC_Start_DMA(&hadc,(uint32_t *)aADCxConvertedData,  ADC_CONVERTED_DATA_BUFFER_SIZE) != HAL_OK)
+		    {
+		  	  Error_Handler();
+		    }
+*/	    // end of the ADC start rutine conversion
 
-		  // debug
-
-		  lcd_setCharPos(1,3);
-		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[0]);
-		  lcd_printString(buffer_s);
-
-		  lcd_setCharPos(1,11);
-		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[1]);
-		  lcd_printString(buffer_s);
-
-		  lcd_setCharPos(2,3);
-		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[2]);
-		  lcd_printString(buffer_s);
-
-		  lcd_setCharPos(2,11);
-		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[3]);
-		  lcd_printString(buffer_s);
-
-		  lcd_setCharPos(3,3);
-		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[4]);
-		  lcd_printString(buffer_s);
-
-		  lcd_setCharPos(3,11);
-		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[5]);
-		  lcd_printString(buffer_s);
-
-		  lcd_setCharPos(4,3);
-		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[6]);
-		  lcd_printString(buffer_s);
-
-//		  lcd_setCharPos(4,11);
-//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[7]);
-//		  lcd_printString(buffer_s);
-
-//		  lcd_setCharPos(5,3);
-//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[8]);
-//		  lcd_printString(buffer_s);
-//
-//		  lcd_setCharPos(5,11);
-//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[9]);
-//		  lcd_printString(buffer_s);
-//		  // end debug
 //DEBUG
 
 		  PWM_togle(21);
@@ -307,8 +272,10 @@ int main(void)
 	    					snprintf(buffer_s, 18, "Pres %d.%02d hp",presure/100,presure%100);
 	    					lcd_printString(buffer_s);
 			   */
+
+			  // resistance divider is 10k to 2k2
 			  lcd_setCharPos(6,0);
-			  snprintf(buffer_s, 13, "%lu-> %lu.%02luV",InputVoltage,InputVoltage*66/2550,(InputVoltage*66%2550*100/255)/10 );// get two numbers for voltage
+			  snprintf(buffer_s, 13, "%lu-> %lu.%02luV",InputVoltage,InputVoltage*671/9350,(InputVoltage*671%9350*100/255)/10 );// get two numbers for voltage
 			  lcd_printString(buffer_s);
 
 			  flags.new_data_to_show=FALSE; // the data was showed.
@@ -329,6 +296,8 @@ int main(void)
 			  fill_comparer(TIME_PERIODE, &time_compare);
 			  show_time = FALSE;
 		  }
+
+		  show = debug;
 		  break;
 	  }
 	  case idle:
@@ -341,7 +310,83 @@ int main(void)
 //		  display_menu(ActualMenu);
 //		  break;
 //	  }
+	  case debug:
+	  {
+		  // debug
 
+		  /**Popis kanalu
+		   * chanel 1		TEMP2
+		   * chanel 2		TEMP3
+		   * chanel 4		V_IN_MEAS
+		   * chanel 10	TEMP1
+		   * chanel 11	50HZ
+		   * chanel 12	TEMP5
+		   * chanel 13	TEMP4
+		   */
+
+		  		  lcd_setCharPos(1,3);
+		  		  snprintf(buffer_s, 12, "%d",aADCxConvertedData[0]);
+		  		  lcd_printString(buffer_s);
+
+		  		  lcd_setCharPos(2,3);
+		  		  snprintf(buffer_s, 12, "%d",aADCxConvertedData[1]);
+		  		  lcd_printString(buffer_s);
+
+	  				  lcd_setCharPos(3,3);
+	  				  snprintf(buffer_s, 12, "%d",aADCxConvertedData[2]);
+	  				  lcd_printString(buffer_s);
+
+
+	  				  lcd_setCharPos(4,3);
+	  					 snprintf(buffer_s, 12, "%d",aADCxConvertedData[3]);
+	  					  lcd_printString(buffer_s);
+
+
+
+
+//		  lcd_setCharPos(1,3);
+//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[3]);
+//		  lcd_printString(buffer_s);
+//
+//		  lcd_setCharPos(1,11);
+//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[0]);
+//		  lcd_printString(buffer_s);
+//
+//		  lcd_setCharPos(2,3);
+//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[1]);
+//		  lcd_printString(buffer_s);
+//
+//		  lcd_setCharPos(2,11);
+//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[6]);
+//		  lcd_printString(buffer_s);
+//
+//		  lcd_setCharPos(3,3);
+//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[5]);
+//		  lcd_printString(buffer_s);
+
+//		  lcd_setCharPos(3,11);
+//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[4]);
+//		  lcd_printString(buffer_s);
+//
+//		  lcd_setCharPos(4,3);
+//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[2]);
+//		  lcd_printString(buffer_s);
+//
+//		  lcd_setCharPos(4,11);
+//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[7]);
+//		  lcd_printString(buffer_s);
+//
+//		  lcd_setCharPos(5,3);
+//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[8]);
+//		  lcd_printString(buffer_s);
+//
+//		  lcd_setCharPos(5,11);
+//		  snprintf(buffer_s, 12, "%lu",aADCxConvertedData[9]);
+//		  lcd_printString(buffer_s);
+		  // end debug
+
+		  break;
+	  }
 
 	  default:{
 		  lcd_setCharPos(1,1);
@@ -482,7 +527,7 @@ int main(void)
 	  		PWM_togle(32);	//LED2
 	  		PWM_togle(31);	//OUT1
 	  		PWM_togle(34);	//OUT2
-	  		PWM_togle(22); //BUZZER
+	  		//PWM_togle(22); //BUZZER
 	  		PWM_togle(23); //LCD light
 
 	  		HAL_GPIO_TogglePin(D_RLY2_GPIO_Port,D_RLY2_Pin);
