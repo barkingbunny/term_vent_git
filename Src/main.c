@@ -65,6 +65,7 @@
 #include "log.h"
 #include "sleep.h"
 #include "pwm.h"
+#include "button.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -76,12 +77,6 @@ static States_loop current_state;
 static Screen show;
 Flags_main flags;
 int8_t en_count=0;
-
-/* Definitions of data related to this example */
-  /* Definition of ADCx conversions data table size */
-  #define ADC_CONVERTED_DATA_BUFFER_SIZE   5   /* Size of array aADCxConvertedData[] */
-/* Variable containing ADC conversions data */
-static uint16_t   aADCxConvertedData[ADC_CONVERTED_DATA_BUFFER_SIZE];
 
 Buttons pushed_button; //cleared each main cycle
 
@@ -114,14 +109,14 @@ int main(void)
   /* USER CODE BEGIN Init */
   char buffer_s [32];
 
-  uint32_t InputVoltage=0;
+
   uint8_t en_count_last=0;
   char aShowTime[50] = {0};
   Bool show_time=TRUE;
 
   //timeouts
-  Compare_t backlite_compare, measure_compare, led_compare, time_compare, button_compare, heating_compare, logging_compare, show_timeout, heating_instant_timeout;
-  backlite_compare.overflow=FALSE , measure_compare.overflow=FALSE, led_compare.overflow=FALSE, time_compare.overflow=FALSE, button_compare.overflow=FALSE, heating_compare.overflow=FALSE, logging_compare.overflow=FALSE, show_timeout.overflow=FALSE, heating_instant_timeout.overflow=FALSE;
+  Compare_t backlite_compare, measure_compare, led_compare, time_compare, button_compare, vent_compare, logging_compare, show_timeout, heating_instant_timeout;
+  backlite_compare.overflow=FALSE , measure_compare.overflow=FALSE, led_compare.overflow=FALSE, time_compare.overflow=FALSE, button_compare.overflow=FALSE, vent_compare.overflow=FALSE, logging_compare.overflow=FALSE, show_timeout.overflow=FALSE, heating_instant_timeout.overflow=FALSE;
   actual_HALtick.overflow = FALSE;
   past_HALtick.overflow = FALSE;
 
@@ -152,12 +147,15 @@ int main(void)
   /* USER CODE BEGIN 2 */
   backliteOn();
   fill_comparer(BACKLITE_TIMEOUT, &backlite_compare);
+  fill_comparer(BUT_DELAY, &button_compare);
+  fill_comparer(TIME_PERIODE, &time_compare);
+
 
   lcd12864_init(&hspi1);
   line(0,60,110,60,1);
   lcd_setCharPos(0,0);
   lcd_printString("Initialization unit\r");
-  lcd_printString("term_vent_git\r");
+  lcd_printString("term_vent_git-simple\r");
   snprintf(buffer_s, 11, "SW v 0.%03d", SW_VERSION);
   lcd_printString(buffer_s);
   //ENCODER initialization
@@ -165,17 +163,11 @@ int main(void)
   htim22.Instance->EGR = 1;           // Generate an update event
   htim22.Instance->CR1 = 1;           // Enable the counter
 
-  Log_Init(); // initialization of the logging, each LOG_PERIODE second would be logged the data
-
   HAL_Delay(1700);
   lcd_clear();
 
-  current_state = MEASURING;
+  current_state = IDLE;
   show=desktop;
-
-
-
-HAL_ADC_Start(&hadc);
 
   /* USER CODE END 2 */
 
@@ -185,24 +177,25 @@ HAL_ADC_Start(&hadc);
   {
 	  switch (current_state){
 
-	  case MEASURING:
+
+/*	  case MEASURING:
 	  {
 
 		  HAL_ADC_PollForConversion(&hadc,100);
 
-		  /* Check if the continous conversion of regular channel is finished */
+		   Check if the continous conversion of regular channel is finished
 		      if ((HAL_ADC_GetState(&hadc) & HAL_ADC_STATE_REG_EOC) == HAL_ADC_STATE_REG_EOC)
 		      {
-		        /*##-6- Get the converted value of regular channel  ########################*/
+		        ##-6- Get the converted value of regular channel  ########################
 		    	  aADCxConvertedData[2] = HAL_ADC_GetValue(&hadc);
 		      }
 		  //START ADC CONVERSION:
-/*
+
 		    if (HAL_ADC_Start_DMA(&hadc,(uint32_t *)aADCxConvertedData,  ADC_CONVERTED_DATA_BUFFER_SIZE) != HAL_OK)
 		    {
 		  	  Error_Handler();
 		    }
-*/	    // end of the ADC start rutine conversion
+	    // end of the ADC start rutine conversion
 
 //DEBUG
 
@@ -219,7 +212,16 @@ HAL_ADC_Start(&hadc);
 		  fill_comparer(MEASURE_PERIODE, &measure_compare);
 
 		  break;
-	  }
+	  }*/
+
+	  case VENT:
+	  		  {
+
+
+
+	  			  break;
+	  		  }
+
 	  case IDLE:
 		  {
 			  break;
@@ -246,27 +248,7 @@ HAL_ADC_Start(&hadc);
 	  {// showing main screen - temperatures and Hum
 		  if (flags.new_data_to_show==TRUE){
 
-//			  lcd_setCharPos(1,3);
-//			  char_magnitude(2);
-//			  snprintf(buffer_s, 12, "%3ld.%02d C",temperature/100,abs(temperature%100));
-//			  lcd_printString(buffer_s);
-
-
 			  char_magnitude(1);
-
-//			  lcd_setCharPos(3,2);
-//			  snprintf(buffer_s, 12, "set %3ld.%02d C",temperature_set/100,abs(temperature_set%100));
-//			  lcd_printString(buffer_s);
-
-			  /*	lcd_setCharPos(6,4);
-	    					snprintf(buffer_s, 18, "Pres %d.%02d hp",presure/100,presure%100);
-	    					lcd_printString(buffer_s);
-			   */
-
-			  // resistance divider is 10k to 2k2
-			  lcd_setCharPos(6,0);
-			  snprintf(buffer_s, 13, "%lu-> %lu.%02luV",InputVoltage,InputVoltage*671/9350,(InputVoltage*671%9350*100/255)/10 );// get two numbers for voltage
-			  lcd_printString(buffer_s);
 
 			  flags.new_data_to_show=FALSE; // the data was showed.
 
@@ -287,7 +269,16 @@ HAL_ADC_Start(&hadc);
 			  show_time = FALSE;
 		  }
 
-		  show = debug;
+/*DEBUG*/
+
+lcd_setCharPos(7,8);
+snprintf(buffer_s, 14, "sys%9ld;",actual_HALtick.tick);
+lcd_printString(buffer_s);
+
+/* DEBUG*/
+
+
+		  show = idle;
 		  break;
 	  }
 	  case idle:
@@ -295,41 +286,20 @@ HAL_ADC_Start(&hadc);
 		  break;
 	  }
 
-//	  case menu:
-//	  {
-//		  display_menu(ActualMenu);
-//		  break;
-//	  }
 	  case debug:
 	  {
 		  // debug
 
 		  /**Popis kanalu
-		   * chanel 1		TEMP2
-		   * chanel 2		TEMP3
-		   * chanel 4		V_IN_MEAS
+		   * chanel 1	TEMP2
+		   * chanel 2	TEMP3
+		   * chanel 4	V_IN_MEAS
 		   * chanel 10	TEMP1
 		   * chanel 11	50HZ
 		   * chanel 12	TEMP5
 		   * chanel 13	TEMP4
 		   */
 
-		  		  lcd_setCharPos(1,3);
-		  		  snprintf(buffer_s, 12, "%d",aADCxConvertedData[0]);
-		  		  lcd_printString(buffer_s);
-
-		  		  lcd_setCharPos(2,3);
-		  		  snprintf(buffer_s, 12, "%d",aADCxConvertedData[1]);
-		  		  lcd_printString(buffer_s);
-
-	  				  lcd_setCharPos(3,3);
-	  				  snprintf(buffer_s, 12, "%d",aADCxConvertedData[2]);
-	  				  lcd_printString(buffer_s);
-
-
-	  				  lcd_setCharPos(4,3);
-	  					 snprintf(buffer_s, 12, "%d",aADCxConvertedData[3]);
-	  					  lcd_printString(buffer_s);
 		  break;
 	  }
 
@@ -339,16 +309,12 @@ HAL_ADC_Start(&hadc);
 	  }
 	  }// switch show
 
-	  /* *------ TIME ELAPSING CHECK -------* */
+	  /***********------ TIME ELAPSING CHECK -------*****************/
 	  		get_actual_HAL_tick(); // put the actual number of ms counter to variable actual_HALtic.tick
 
-	  		if(comparer_timeout(&logging_compare)) //log data after defined period.
+	  		if(comparer_timeout(&vent_compare)) //measure after defined period.
 	  		{
-	  			current_state = LOG;
-	  		}
-	  		if(comparer_timeout(&heating_compare)) //measure after defined period.
-	  		{
-	  			current_state = HEATING;
+	  			current_state = VENT;
 	  		}
 	  		if (comparer_timeout(&measure_compare))  //measure after defined period.
 	  		{
@@ -357,46 +323,27 @@ HAL_ADC_Start(&hadc);
 	  		if(comparer_timeout(&time_compare)) //change time after defined period.
 	  		{
 	  			show_time = TRUE;
+	//DEBUG
+	  			show = desktop;
+//END DEBUG
 	  		}
 
 	  		if(comparer_timeout(&show_timeout)) //change time after defined period.
 	  		{
 	  			show = desktop;
 	  		}
-	  // MENU TIMEOUT
-	  		if ((TRUE==flags.menu_running)) // je to takhle slozite , protoze jsem neprisel na jiny efektivni zpusob, jak smazat displej, po zkonceni menu
-	  			if(!menu_timout()) {
-	  				if (!menu_action()){ // exit from menu condition
-	  					flags.menu_running=0;
-	  					lcd_clear();
-	  					show = desktop;
-	  				}
-	  				else
-	  					show = menu;
-	  			} // if menu - TIMEOUT
-	  			else {
-	  				flags.menu_running=0;
-	  				lcd_clear();
-	  				show = desktop;
-	  			}
 
-	  		if (flags.temp_new_set){
-	  			flags.temp_new_set = FALSE;
-	  			show = desktop;
-	  		}
-
-	  		//if (backlite_compare.tick <= actual_HALtick) // shut down the backligh
 	  		if (comparer_timeout(&backlite_compare))
 	  		{
 	  			backliteOff();
 	  		}
 
-	  		/* *---- READ KEYBOARD -----* */
+/************---- READ KEYBOARD -----************/
 
 	  		pushed_button = BUT_NONE;
 	  		if(comparer_timeout(&button_compare)) //every delay time
 	  		{
-	  			pushed_button = checkButtons();
+	  			pushed_button = button_pressed();
 	  			fill_comparer(BUT_DELAY, &button_compare);
 	  			//flags.enc_changed = FALSE;
 	  			// reading the actual number from encoder
@@ -412,7 +359,6 @@ HAL_ADC_Start(&hadc);
 	  		if(pushed_button != BUT_NONE) // any button pushed?
 	  		{
 	  			backliteOn();
-	  			fill_comparer(BUT_DELAY*200, &button_compare); // 200x - zpozdeni cteni pri stisknuti
 	  			fill_comparer(BACKLITE_TIMEOUT, &backlite_compare);
 	  			fill_comparer(SHOW_TIMEOUT, &show_timeout);
 	  		}
@@ -420,25 +366,14 @@ HAL_ADC_Start(&hadc);
 	  		// -- BUTTON PROCCESS
 	  		switch (pushed_button){
 	  		case BUT_1:
-	  		{// activate heater
-	  			if (!flags.regulation_temp){
-	  				flags.regulation_temp=TRUE;
-	  				flags.heating_up = TRUE;
-
-	  			}
-	  			else {
-	  				flags.regulation_temp=FALSE;
-	  			}
-	  			// new data to show - heating icon.
-	  			flags.new_data_to_show=TRUE;
-	  			//	show = debug;
-
+	  		{
+	  			PWM_togle(32);	//D3
 	  			break;
 	  		}
 	  		case BUT_2:
 	  		{// Immediattely heating for 15 minutes
 
-	  			flags.heating_instant = TRUE;  // predelat na foukej ///
+	  			PWM_togle(21);	//D2
 
 	  			break;
 	  		}
@@ -463,23 +398,38 @@ HAL_ADC_Start(&hadc);
 
 	  		HAL_Delay(MAIN_LOOP);
 
+
+	  		// DEBUG LED
+static uint8_t pocitadlo_debug=0;
+pocitadlo_debug++;
+if (400 < (pocitadlo_debug*MAIN_LOOP)) { // cekej 400ms
+	PWM_togle(31);	//OUT1
+  	PWM_togle(34);	//OUT2
+  	//PWM_togle(22); //BUZZER
+  	HAL_GPIO_TogglePin(D_RLY2_GPIO_Port,D_RLY2_Pin);
+  	pocitadlo_debug=0;
+
+}
+// END DEBUG LED
+
+
+//DEBUG rychlost jednoho cyklu
+
+static uint32_t stare_halTick = 0;
+uint32_t rozdil= HAL_GetTick() - stare_halTick;
+stare_halTick = HAL_GetTick();
+lcd_setCharPos(6,5);
+snprintf(buffer_s, 13, "rychlost%4ld",rozdil);
+lcd_printString(buffer_s);
+
+
+//END DEBUG
+
+
+
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-
-// DEBUG LED
-
-	  		PWM_togle(32);	//LED2
-	  		PWM_togle(31);	//OUT1
-	  		PWM_togle(34);	//OUT2
-	  		//PWM_togle(22); //BUZZER
-	  		PWM_togle(23); //LCD light
-
-	  		HAL_GPIO_TogglePin(D_RLY2_GPIO_Port,D_RLY2_Pin);
-	  		HAL_Delay(400);
-
-
-// END DEBUG LED
 
   }
   /* USER CODE END 3 */

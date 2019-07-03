@@ -13,6 +13,16 @@
 /**
  * start the PWM channel with coding:
  *  first number - timer; second number is channel (21 - tim2, channel 1)
+ *  // vent -board
+ *
+ *  21 Diganosticka LED -1 D_LED1
+ *  22 pipak D_BUZZER
+ *  23 LCD podsvetleni a klavesnice D_LCD_LIGHT
+ *  24 LCD_TFT podsvetleni
+ *  31 vystup 1 - D_OUT1
+ *  32 diagnosticka LED D_LED2
+ *  33 - DISABLED
+ *  34 Vystup 2 - D_OUT2
  */
 static Flags_PWM running;
 

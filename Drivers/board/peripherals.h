@@ -9,11 +9,11 @@
 #define MODULE_PERIPHERALS_H_
 
 #define BUT_SCAN_PERIOD 500 //ms
-//#define BACKLITE_TIMEOUT 30000 //30s
-#define BACKLITE_TIMEOUT 60000 //60s
+#define BACKLITE_TIMEOUT 30000 //30s
+//#define BACKLITE_TIMEOUT 60000 //60s
 #define SHOW_TIMEOUT 60000 // 60s - time for showing different screen than default.
 
-typedef enum {	BUT_NONE,
+typedef enum {	BUT_NONE = 0,
 				BUT_1,
 				BUT_2,
 				BUT_ENC,

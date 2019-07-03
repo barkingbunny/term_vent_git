@@ -68,11 +68,13 @@ void turnOffHeater(void){
 void backliteOn(void){
 
 	HAL_GPIO_WritePin(D_LCD_LIGHT_GPIO_Port,D_LCD_LIGHT_Pin,GPIO_PIN_SET);
+	PWM_start(23);
 }
 
 void backliteOff(void){
 
 	HAL_GPIO_WritePin(D_LCD_LIGHT_GPIO_Port,D_LCD_LIGHT_Pin,GPIO_PIN_RESET);
+	PWM_stop(23);
 }
 
 /*
