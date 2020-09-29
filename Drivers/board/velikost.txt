@@ -1,0 +1,9 @@
+
+   text	   data	    bss	    dec	    hex	filename
+  23384	    720	   4576	  28680	   7008	term_vent_git.elf
+  
+  24888	    712	   4672	  30272	   7640	term_vent_git.elf
+  24888	    712	   4672	  30272	   7640	term_vent_git.elf 
+  24904	    712	   4672	  30288	   7650	term_vent_git.elf
+  24904	    712	   4672	  30288	   7650	term_vent_git.elf
+  24904	    712	   4672	  30288	   7650	term_vent_git.elf

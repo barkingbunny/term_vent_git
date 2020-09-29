@@ -1,6 +1,6 @@
 /*
  * menu.h
- *
+ *  projekt - TERMOSTAT
  *  Created on: Jan 23, 2017
  *      Author: jakub
  */
@@ -14,7 +14,9 @@
 #include "tim.h"
 #include "rtc_api.h"
 #include "rtc.h"
+#include "usb_device.h"
 #include "log.h"
+#include "usb_api.h"
 
 
 #define MAX_MENU_ITEM 5
@@ -29,7 +31,8 @@ typedef enum EnSetMenu_t{
 	next,
 	menuReset,
 	printLogLCD,
-	information
+	information,
+	eraseLogMem
 } EnSetMenu;
 
 typedef struct menu_item_s{

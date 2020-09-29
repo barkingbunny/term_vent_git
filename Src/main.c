@@ -419,7 +419,7 @@ static uint32_t stare_halTick = 0;
 uint32_t rozdil= HAL_GetTick() - stare_halTick;
 stare_halTick = HAL_GetTick();
 lcd_setCharPos(6,5);
-snprintf(buffer_s, 13, "rychlost%4ld",rozdil);
+snprintf(buffer_s, 13, "rychlost%4d",rozdil);
 lcd_printString(buffer_s);
 
 

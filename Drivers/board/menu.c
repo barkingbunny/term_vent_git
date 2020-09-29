@@ -42,31 +42,35 @@ uint8_t activation_memu(){
  *
  */
 uint8_t menu_action(){
+#ifdef DEBUG_TERMOSTAT
 	lcd_setCharPos(7,14);
 	char buffer_s [32];
 	snprintf(buffer_s, 12, "enc%03i", (en_count));
 	lcd_printString(buffer_s);
+#endif
 
-	if (flags.enc_changed) // move by encoder was detected - action on displai
+	if (flags.enc_changed) // move by encoder was detected - action on display
 			fill_comparer(MENU_TIMOUT, &menu_compare);	//enlarge time in menu
 
 			switch (ActualMenu->action)
 			{
 			case (next):
 						{
-				if (flags.enc_changed){ // move by encoder was detected - action on dipley
+				if (flags.enc_changed){ // move by encoder was detected - action on display
 					position = en_count;
 					if ((position) < 0)
 						en_count = 0;
 					if ((position) > ActualMenu->numberOfChoices)
 						en_count = ActualMenu->numberOfChoices;
 					position = en_count;
+					for (uint8_t j = 0; j<8;j++){
+						lcd_setCharPos(j,0);
+						_putc(' ');
+						_putc(' ');
+					}
 					lcd_setCharPos((position+1),0);
-					_putc('>');
-					lcd_setCharPos((position+2),0);
-					_putc(' ');
-					lcd_setCharPos((position),0);
-					_putc(' ');
+					_putc(0x083);
+					_putc(0x084);
 					copy_to_lcd();
 					flags.enc_changed = FALSE;
 				}//if COUNTER!=0
@@ -199,52 +203,40 @@ uint8_t menu_action(){
 			case (printLogUSB):
 						{
 				char buffer_menu [32];
+				uint8_t post = 0;
+				uint8_t usbTransmit=0;
+
+				//LCD vypis
 				lcd_clear();
 				lcd_setCharPos(1,1);
 				snprintf(buffer_menu, 16, "Vypisuji na USB");
 				lcd_printString(buffer_menu);
-		//debug
+				//debug
 
-				uint8_t buffer_menu2 [16] = "Vypisuji na USB";
+				uint8_t buffer_menu2 [32] = "Vypisuji na USB";
 				char buffer_menu3 [32];
-				//snprintf(buffer_menu, 16, "Vypisuji na USB");
-			/*	post = CDC_Transmit_FS(buffer_menu2,16);
+
+				post = CDC_Transmit_FS(&buffer_menu2[0],16);
 
 				lcd_setCharPos(0,4);
 				snprintf(buffer_menu, 12, "return %i", post);
 				lcd_printString(buffer_menu);
-*/
-				//buffer_menu2 = "\r\n";
-				//CDC_Transmit_FS(buffer_menu2,5);
-				/*snprintf(buffer_menu, 30, "i; hours; min; temp; humid\r\n");
-				CDC_Transmit_FS(buffer_menu,30);
-				/*buffer_menu2 = "i; hours; min; temp; humid\r\n";
-				CDC_Transmit_FS(buffer_menu2,30);
-				buffer_menu2 = "\r\n";   // pouze odradkovani a zformatovani
-				CDC_Transmit_FS(buffer_menu2,5);
-		//debug
-				 snprintf(buffer_menu, 5, "\r\n");   // pouze odradkovani a zformatovani
-				 post = CDC_Transmit_FS(buffer_menu,5);
-				 snprintf(buffer_menu, 9, "return %d", post);
-				 lcd_printString(buffer_menu);
-				 snprintf(buffer_menu, 1, " ");
-				 snprintf(buffer_menu, 30, "i; hours; min; temp; humid\r\n");
-				 post = CDC_Transmit_FS(buffer_menu,30);
-				 snprintf(buffer_menu, 9, "return %d", post);
-				 lcd_printString(buffer_menu);
-				 snprintf(buffer_menu, 5, "\r\n");   // pouze odradkovani a zformatovani
-				 post = CDC_Transmit_FS(buffer_menu,5);
-				 snprintf(buffer_menu, 9, "return %d", post);
-				 lcd_printString(buffer_menu);
+				
 
-*/
+				for (uint16_t index=0; index<LOG_DATA_LENGTH; index++) {
 
+					snprintf(buffer_menu3, 27, "%02i;%02u;%02u;%02u;%02u;%03ld.%02d;%3ld%\r\n ", (index+1), log_data[index].month, log_data[index].day, log_data[index].hour,log_data[index].minute,log_data[index].temp_1/100, abs(log_data[index].temp_1%100), (log_data[index].hum_1));
+					for (int j=0; j<32;j++){
+						buffer_menu2[j] = (uint8_t *)buffer_menu3[j];
+					}
+					{
+					HAL_Delay(3);
+					usbTransmit = CDC_Transmit_FS(&buffer_menu2[0],27);
+					//if(usbTransmit==USBD_BUSY) HAL_Delay(500);
+					/*mel jsem problem, ze se pri vypisovani USB dostavalo do BUSY modu. Bylo hodne dat a nemel jsem Delay funkci. Tak busy bylo porad.*/
+					}while (usbTransmit==USBD_BUSY);
 
-				//				for (uint16_t index=0; index<LOG_ARRAY; index++) {
-				//					snprintf(buffer_menu, 25, "%03i;%02u;%02u;%3ld.%02d;%2ld.%02ld\r\n ", index, log_hour[index],log_min[index],log_temperature[index]/100, abs(log_temperature[index]%100), (log_humid[index]/ 1024), (log_humid[index]%1024*100/1024));
-				//					CDC_Transmit_FS(buffer_menu,25);
-				//				}
-
+				}
 				return 0; //exit menu
 
 				break;
@@ -269,6 +261,24 @@ uint8_t menu_action(){
 
 				break;
 						}
+
+			case(eraseLogMem):
+				{
+				char buffer_menu [32];
+				//LCD vypis
+				lcd_clear();
+				lcd_setCharPos(3,1);
+				snprintf(buffer_menu, 16, "Log memory - erased");
+				lcd_printString(buffer_menu);
+
+				//vymzani logovaci databaze/pameti
+				Log_errase_database();
+
+				HAL_Delay(1000);
+
+				return 0;//exit menu, finished
+				break;
+				}
 
 			case (menuReset):
 				{

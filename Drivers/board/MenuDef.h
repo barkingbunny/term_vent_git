@@ -3,6 +3,7 @@
  *
  *  Created on: Jan 24, 2017
  *      Author: jakub
+ * 		last update-compare 29.9.2020
  */
 /**
  * definition of MENU items.
@@ -28,6 +29,7 @@ const menu_item_t setClock;
 // LOG submenus
 const menu_item_t i_printLogLCD;
 const menu_item_t i_printLogUSB;
+const menu_item_t i_eraseLogMem;
 
 
 /*
@@ -74,8 +76,8 @@ const menu_item_t put_menuReset = {
 
 const menu_item_t extLOG = {
 		"LOGs",
-		2,
-		{&i_printLogLCD,&i_printLogUSB},
+		3,
+		{&i_printLogLCD,&i_printLogUSB,&i_eraseLogMem},
 		&MainMenu,
 		next
 };
@@ -120,6 +122,14 @@ const menu_item_t i_printLogUSB = {
 		{NULL},
 		&extLOG,
 		printLogUSB
+};
+
+const menu_item_t i_eraseLogMem = {
+		"Erase log memory",
+		0,
+		{NULL},
+		&extLOG,
+		eraseLogMem
 };
 
 
